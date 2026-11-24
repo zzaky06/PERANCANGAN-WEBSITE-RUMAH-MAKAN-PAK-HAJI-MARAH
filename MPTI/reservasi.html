@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reservasi Meja</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #603908 0%, #F9C94A 100%);
+            padding: 20px 16px 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px #60380891;
+        }
+
+        .header-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .header-slogan {
+            font-size: 11px;
+            color: rgba(255,255,255,0.85);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            display: flex;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 68px;
+            z-index: 99;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 14px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            color: #888;
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-item.active {
+            color: #603908;
+            border-bottom-color: #603908;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+            margin: 20px 16px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #603908;
+            border-radius: 2px;
+        }
+
+        /* ===== TABLE GRID ===== */
+        .table-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 16px;
+            margin-bottom: 20px;
+        }
+
+        .table-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .table-card:active {
+            transform: scale(0.98);
+        }
+
+        .table-card.selected {
+            border-color: #603908;
+            box-shadow: 0 4px 20px rgba(196, 30, 58, 0.2);
+        }
+
+        .table-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .table-info {
+            padding: 10px 12px;
+        }
+
+        .table-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .table-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .status-tersedia {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-terisi {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .table-card.selected .table-status.status-tersedia {
+            background: #F9C94A;
+            color: #fff;
+        }
+
+        /* ===== FORM MODAL POPUP (CENTER) ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 24px;
+            padding: 28px 24px;
+            text-align: left;
+            transform: scale(0.8) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .modal-header p {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .selected-table-badge {
+            background:#ffff ;
+            border: 2px solid #603908;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selected-table-icon {
+            font-size: 24px;
+            background: #603908;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .selected-table-text {
+            flex: 1;
+        }
+
+        .selected-table-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .selected-table-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #603908;
+        }
+
+        /* Modern Form Inputs */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+            outline: none;
+            background: #fafafa;
+            color: #333;
+        }
+
+        .form-input::placeholder {
+            color: #bbb;
+            font-weight: 400;
+        }
+
+        .form-input:focus {
+            border-color: #603908;
+            background: #fff;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        textarea.form-input {
+            resize: none;
+            min-height: 80px;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background:#603908 ;
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px #6038088e;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px #6038088e;
+        }
+
+        .btn-submit:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-submit:disabled {
+            background: #ddd;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* ===== SUCCESS MODAL ===== */
+        .success-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .success-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .success-modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 28px;
+            padding: 36px 28px;
+            text-align: center;
+            transform: scale(0.8) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+        }
+
+        .success-modal-overlay.active .success-modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #16a34a;
+            margin-bottom: 8px;
+        }
+
+        .success-text {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .reservation-code {
+            background: linear-gradient(135deg, #fef2f2, #fff);
+            border: 2px dashed #603908;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .code-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .code-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: #603908;
+            letter-spacing: 3px;
+        }
+
+        .btn-close {
+            width: 100%;
+            background: #603908;
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px #6038088e;
+        }
+
+        .btn-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px #6038088a;
+        }
+
+        .btn-close:active {
+            transform: scale(0.98);
+        }
+
+        /* ===== HISTORY SECTION ===== */
+        .history-section {
+            display: none;
+            padding: 0 16px;
+        }
+
+        .history-section.active {
+            display: block;
+        }
+        .history-search {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .history-search .form-input {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .history-search .btn-search {
+            flex-shrink: 0;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            background: #603908;
+            cursor: pointer;
+        }
+
+        .history-search .btn-search:hover {
+            opacity: 0.95;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .history-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #603908;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .history-code {
+            font-size: 16px;
+            font-weight: 800;
+            color: #603908;
+        }
+
+        .history-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .history-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .history-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .history-detail-icon {
+            font-size: 14px;
+        }
+
+        /* ===== NOTIFICATION ===== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #603908;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        /* LAPTOP / DESKTOP RESPONSIVE */
+        @media (min-width: 768px) {
+            body {
+                background: #e8e8e8;
+            }
+
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #f5f5f5;
+                min-height: 100vh;
+                box-shadow: 0 0 40px rgba(0,0,0,0.1);
+            }
+
+            .table-grid {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
+
+            .table-img {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div class="header-logo">RESERVASI MEJA</div>
+            <div class="header-slogan">Pilih Meja Favoritmu</div>
+        </div>
+
+        <!-- ===== NAVIGATION ===== -->
+        <div class="nav">
+            <button class="nav-item active" onclick="switchTab('reservasi')" id="nav-reservasi">Reservasi</button>
+            <button class="nav-item" onclick="switchTab('riwayat')" id="nav-riwayat">Riwayat Reservasi</button>
+        </div>
+
+        <!-- ===== RESERVASI SECTION ===== -->
+        <div id="section-reservasi">
+            <div class="section-title">Pilih Meja</div>
+            <div class="table-grid" id="table-grid"></div>
+        </div>
+
+        <!-- ===== RIWAYAT SECTION ===== -->
+        <div class="history-section" id="section-riwayat">
+            <div class="section-title">Riwayat Reservasi</div>
+                <div class="history-search">
+                    <input type="text" class="form-input" id="history-code" placeholder="Masukkan kode reservasi Anda" maxlength="20">
+                    <button class="btn-search" onclick="searchReservation()">Cari Kode</button>
+                </div>
+            <div id="history-list"></div>
+        </div>
+
+        <!-- ===== FORM MODAL POPUP (CENTER) ===== -->
+        <div class="modal-overlay" id="form-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Data Reservasi</h2>
+                    <p>Lengkapi data untuk konfirmasi</p>
+                </div>
+
+                <div class="selected-table-badge" id="selected-info">
+                    <div class="selected-table-text">
+                        <div class="selected-table-label">Meja Terpilih</div>
+                        <div class="selected-table-name" id="selected-name">-</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nama Lengkap</label>
+                    <input type="text" class="form-input" id="form-nama" placeholder="Masukkan nama lengkap">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nomor HP</label>
+                    <input type="tel" class="form-input" id="form-hp" placeholder="08xxxxxxxxxx" maxlength="15">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Jam Kedatangan</label>
+                        <input type="time" class="form-input" id="form-jam">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Jumlah Orang</label>
+                        <input type="number" class="form-input" id="form-jumlah" placeholder="1-20" min="1" max="20">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Catatan (Opsional)</label>
+                    <textarea class="form-input" id="form-catatan" placeholder="Contoh: Dekat jendela, acara ulang tahun..."></textarea>
+                </div>
+
+                <button class="btn-submit" id="btn-submit" onclick="submitReservation()">Konfirmasi Reservasi</button>
+            </div>
+        </div>
+
+        <!-- ===== SUCCESS MODAL ===== -->
+        <div class="success-modal-overlay" id="success-modal">
+            <div class="success-modal-content">
+                <div class="success-icon">✓</div>
+                <div class="success-title">Reservasi Berhasil!</div>
+                <div class="success-text">Permintaan reservasi sudah terkirim. Tunjukkan kode ini setelah admin menyetujui.</div>
+                <div class="reservation-code">
+                    <div class="code-label">Kode Reservasi</div>
+                    <div class="code-value" id="reservation-code">RSV001</div>
+                </div>
+                <button class="btn-close" onclick="closeModal()">Oke, Siap!</button>
+            </div>
+        </div>
+
+        <!-- ===== NOTIFICATION ===== -->
+        <div class="notification" id="notification">Silakan pilih meja terlebih dahulu!</div>
+    </div>
+
+    <script>
+        // ===== DATA MEJA =====
+        let tables = [];
+        let selectedTable = null;
+
+        // ===== INIT =====
+        function init() {
+            loadTablesFromAPI();
+            renderHistory([]);
+        }
+
+        function loadTablesFromAPI() {
+            fetch('order_api.php?action=get_tables')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.tables) {
+                        tables = data.tables;
+                        renderTables();
+                    }
+                })
+                .catch(err => {
+                    console.error('Gagal load meja:', err);
+                    showNotification('Gagal memuat data meja');
+                });
+        }
+
+        function renderTables() {
+            const grid = document.getElementById('table-grid');
+            let html = '';
+
+            tables.forEach(table => {
+                const isTersedia = table.status === 'tersedia';
+                const statusClass = isTersedia ? 'status-tersedia' : 'status-terisi';
+                const statusText = isTersedia ? 'Tersedia' : 'Terisi';
+                const imageSrc = table.image && table.image.trim() !== ''
+                    ? table.image
+                    : `https://via.placeholder.com/400x200/c41e3a/ffffff?text=${encodeURIComponent(table.nama)}`;
+
+                html += `
+                <div class="table-card ${selectedTable === table.id ? 'selected' : ''}"
+                     data-id="${table.id}"
+                     onclick="${isTersedia ? `selectTable(${table.id}, '${table.nama}')` : `showNotification('Meja ${table.nama} sudah terisi!')`}">
+                    <img src="${imageSrc}" alt="${table.nama}" class="table-img">
+                    <div class="table-info">
+                        <div class="table-name">${table.nama}</div>
+                        <span class="table-status ${statusClass}">${statusText}</span>
+                    </div>
+                </div>`;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function selectTable(id, nama) {
+            selectedTable = id;
+            
+            document.querySelectorAll('.table-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-id="${id}"]`).classList.add('selected');
+
+            // Show form modal in center
+            document.getElementById('selected-name').textContent = nama;
+            document.getElementById('form-modal').classList.add('active');
+        }
+
+        function closeFormModal() {
+            document.getElementById('form-modal').classList.remove('active');
+            selectedTable = null;
+            document.querySelectorAll('.table-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        function showNotification(msg) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 2000);
+        }
+
+        function submitReservation() {
+            const nama = document.getElementById('form-nama').value.trim();
+            const hp = document.getElementById('form-hp').value.trim();
+            const jam = document.getElementById('form-jam').value;
+            const jumlah = document.getElementById('form-jumlah').value;
+            const catatan = document.getElementById('form-catatan').value.trim();
+
+            if (!nama) { showNotification('Silakan isi nama lengkap'); return; }
+            if (!hp) { showNotification('Silakan isi nomor HP'); return; }
+            if (!jam) { showNotification('Silakan pilih jam kedatangan'); return; }
+            if (!jumlah) { showNotification('Silakan isi jumlah orang'); return; }
+            if (!selectedTable) { showNotification('Silakan pilih meja'); return; }
+
+            // Get today's date
+            const today = new Date().toISOString().split('T')[0];
+
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+
+            // Submit to API
+            fetch('order_api.php?action=save_reservation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    table_id: selectedTable,
+                    nama: nama,
+                    no_hp: hp,
+                    tanggal: today,
+                    waktu: jam,
+                    jumlah_orang: parseInt(jumlah),
+                    catatan: catatan
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    showNotification('Gagal melakukan reservasi: ' + (data.error || 'Kesalahan tidak diketahui'));
+                    btn.disabled = false;
+                    btn.textContent = 'Konfirmasi Reservasi';
+                    return;
+                }
+
+
+                document.getElementById('history-code').value = data.reservation.reservasi_code;
+                searchReservation();
+
+                // Show success with code
+                document.getElementById('reservation-code').textContent = data.reservation.reservasi_code;
+                
+
+                // Close form modal, open success modal
+                document.getElementById('form-modal').classList.remove('active');
+                setTimeout(() => {
+                    document.getElementById('success-modal').classList.add('active');
+                }, 200);
+
+                btn.disabled = false;
+                btn.textContent = 'Konfirmasi Reservasi';
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                showNotification('Gagal melakukan reservasi: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'Konfirmasi Reservasi';
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('success-modal').classList.remove('active');
+
+            selectedTable = null;
+            document.querySelectorAll('.table-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.getElementById('form-nama').value = '';
+            document.getElementById('form-hp').value = '';
+            document.getElementById('form-jam').value = '';
+            document.getElementById('form-jumlah').value = '';
+            document.getElementById('form-catatan').value = '';
+
+            loadTablesFromAPI();
+            renderHistory([]);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('form-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFormModal();
+            }
+        });
+
+        document.getElementById('success-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tab) {
+            const navReservasi = document.getElementById('nav-reservasi');
+            const navRiwayat = document.getElementById('nav-riwayat');
+            const sectionReservasi = document.getElementById('section-reservasi');
+            const sectionRiwayat = document.getElementById('section-riwayat');
+
+            if (tab === 'reservasi') {
+                navReservasi.classList.add('active');
+                navRiwayat.classList.remove('active');
+                sectionReservasi.style.display = 'block';
+                sectionRiwayat.classList.remove('active');
+            } else {
+                navRiwayat.classList.add('active');
+                navReservasi.classList.remove('active');
+                sectionReservasi.style.display = 'none';
+                sectionRiwayat.classList.add('active');
+                const code = document.getElementById('history-code').value.trim();
+                if (code) {
+                    loadReservationsFromAPI(code);
+                } else {
+                    renderHistory([]);
+                }
+            }
+        }
+
+        // ===== LOAD RESERVATIONS FROM API =====
+        function loadReservationsFromAPI(code) {
+            if (!code) {
+                renderHistory([]);
+                return;
+            }
+
+            const url = 'order_api.php?action=get_reservations&code=' + encodeURIComponent(code);
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.reservations) {
+                        renderHistory(data.reservations);
+                    } else {
+                        renderHistory([]);
+                    }
+                })
+                .catch(err => {
+                    console.error('Gagal load reservasi:', err);
+                    renderHistory([]);
+                });
+        }
+
+        function searchReservation() {
+            const code = document.getElementById('history-code').value.trim();
+            if (!code) {
+                renderHistory([]);
+                return;
+            }
+            loadReservationsFromAPI(code);
+        }
+
+        // ===== RENDER HISTORY =====
+        function renderHistory(reservations) {
+            const historyList = document.getElementById('history-list');
+            const code = document.getElementById('history-code').value.trim();
+            if (!reservations || reservations.length === 0) {
+                const message = code
+                    ? 'Kode reservasi tidak ditemukan. Periksa kembali kode yang Anda masukkan.'
+                    : 'Masukkan kode reservasi yang Anda terima untuk melihat riwayat.';
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>Riwayat Kosong</h3>
+                        <p>${message}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            reservations.forEach(res => {
+                const createdDate = new Date(res.created_at).toLocaleDateString('id-ID');
+                html += `
+                    <div class="history-card">
+                        <div class="history-header">
+                            <div class="history-code">${res.reservasi_code}</div>
+                            <div class="history-status" style="text-transform: capitalize;">${res.status}</div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-detail-item">
+                                <span class="history-detail-icon">🪑</span>
+                                <span>${res.table_name}</span>
+                            </div>
+                            <div class="history-detail-item">
+                                <span class="history-detail-icon">👤</span>
+                                <span>${res.nama}</span>
+                            </div>
+                            <div class="history-detail-item">
+                                <span class="history-detail-icon">📅</span>
+                                <span>${res.tanggal}</span>
+                            </div>
+                            <div class="history-detail-item">
+                                <span class="history-detail-icon">🕐</span>
+                                <span>${res.waktu}</span>
+                            </div>
+                            <div class="history-detail-item">
+                                <span class="history-detail-icon">👥</span>
+                                <span>${res.jumlah_orang} Orang</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        // Run init
+        init();
+    </script>
+</body>
+</html>
